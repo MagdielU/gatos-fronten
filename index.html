@@ -109,7 +109,7 @@
     </div>
 
     <script>
-        const BACKEND_URL = 'https://gatos-kuchau.onrender.com/gatos';
+        const BACKEND_URL = 'https://gatos-kuchau.onrender.com';
 
         // Vista previa de imagen
         document.getElementById('imagen').addEventListener('change', (e) => {
@@ -183,7 +183,7 @@
             contenedor.innerHTML = '<div class="col-12 loading">Cargando gatos...</div>';
 
             try {
-                const respuesta = await fetch(`${BACKEND_URL}/gato`);
+                const respuesta = await fetch(`${BACKEND_URL}/gatos`);
                 const gatos = await respuesta.json();
 
                 if (!respuesta.ok) {
