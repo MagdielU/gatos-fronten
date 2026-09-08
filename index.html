@@ -142,7 +142,7 @@
             }
 
             try {
-                const respuesta = await fetch(`${BACKEND_URL}/gato`, {
+                const respuesta = await fetch(`${BACKEND_URL}`, {
                     method: 'POST',
                     body: formData
                 });
@@ -183,7 +183,7 @@
             contenedor.innerHTML = '<div class="col-12 loading">Cargando gatos...</div>';
 
             try {
-                const respuesta = await fetch(`${BACKEND_URL}/gatos`);
+                const respuesta = await fetch(`${BACKEND_URL}`);
                 const gatos = await respuesta.json();
 
                 if (!respuesta.ok) {
