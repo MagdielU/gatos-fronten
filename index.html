@@ -118,6 +118,7 @@
 
     <script>
         const BACKEND_URL = 'https://gatos-kuchau.onrender.com';
+        let listaGatosGlobal = []; // Arreglo global para almacenar la respuesta del backend
 
         // ========== Vista previa de imagen ==========
         document.getElementById('imagen').addEventListener('change', (e) => {
@@ -157,13 +158,13 @@
                 let respuesta;
 
                 if (esEdicion) {
-                    // PUT - actualizar
+                    // PUT - actualizar en /gato/:id
                     respuesta = await fetch(`${BACKEND_URL}/gato/${gatoId}`, {
                         method: "PUT",
                         body: formData
                     });
                 } else {
-                    // POST - crear (imagen obligatoria)
+                    // POST - crear en /gato (imagen obligatoria)
                     if (imagenInput.files.length === 0) {
                         resultadoDiv.className = "alert alert-danger mt-4";
                         resultadoDiv.textContent = "La imagen es obligatoria al registrar un gato nuevo.";
@@ -185,6 +186,7 @@
                         (data.imagenUrl
                             ? `<br><img src="${data.imagenUrl}" style="max-width:100%;margin-top:10px;border-radius:8px;">`
                             : '');
+                    resultadoDiv.style.display = "block";
 
                     // Limpiar formulario y salir del modo edición
                     limpiarFormulario();
@@ -202,6 +204,14 @@
             }
         });
 
+        // ========== Buscar gato por ID y cargarlo ==========
+        function prepararEdicion(id) {
+            const gato = listaGatosGlobal.find(g => g.id === id);
+            if (gato) {
+                editarGato(gato);
+            }
+        }
+
         // ========== Cargar datos de un gato en el formulario ==========
         function editarGato(gato) {
             document.getElementById('gatoId').value = gato.id;
@@ -210,7 +220,7 @@
             document.getElementById('peso').value = gato.peso;
             document.getElementById('raza').value = gato.raza;
 
-            // No cargamos la imagen en el input file (no se puede por seguridad del navegador)
+            // No cargamos la imagen en el input file por seguridad del navegador
             document.getElementById('imagen').value = '';
             document.getElementById('preview').style.display = 'none';
 
@@ -243,13 +253,13 @@
 
             try {
                 const respuesta = await fetch(`${BACKEND_URL}/gatos`);
-                const gatos = await respuesta.json();
+                listaGatosGlobal = await respuesta.json();
 
                 if (!respuesta.ok) {
-                    throw new Error(gatos.mensaje || "Error al obtener gatos");
+                    throw new Error(listaGatosGlobal.mensaje || "Error al obtener gatos");
                 }
 
-                if (gatos.length === 0) {
+                if (listaGatosGlobal.length === 0) {
                     contenedor.innerHTML = `
                         <div class="col-12">
                             <div class="alert alert-info text-center">
@@ -259,7 +269,7 @@
                     return;
                 }
 
-                contenedor.innerHTML = gatos.map(gato => `
+                contenedor.innerHTML = listaGatosGlobal.map(gato => `
                     <div class="col-12 col-sm-6 col-xl-4">
                         <div class="card gato-card h-100">
                             <img src="${gato.imagenUrl}" class="card-img-top gato-img" alt="${gato.nombre}"
@@ -277,7 +287,7 @@
                                     </small>
                                 </p>
                                 <button class="btn btn-sm btn-outline-primary mt-auto" 
-                                        onclick='editarGato(${JSON.stringify(gato)})'>
+                                        onclick="prepararEdicion('${gato.id}')">
                                     Actualizar
                                 </button>
                             </div>
